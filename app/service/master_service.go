@@ -301,3 +301,38 @@ func GitPullChanges(req *dto.Request) error {
 
 	return nil
 }
+
+func GitBlame(req *dto.Request) ([]string, error) {
+	cmd := exec.Command("git", "-C", req.Dir, "blame", req.FilePath)
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete last commit: %w", err)
+	}
+
+	blame := strings.Split(string(output), "\n")
+
+	if len(blame) > 0 && blame[len(blame)-1] == "" {
+		blame = blame[:len(blame)-1]
+	} else {
+		blame = nil
+	}
+
+	return blame, nil
+}
+
+func GitBranchVisualize(req *dto.Request) (string, error) {
+	cmd := exec.Command("git", "-C", req.Dir, "log", "--oneline", "--graph", "--all")
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("failed get branch status: %w", err)
+	}
+	// logs := strings.Split(string(output), "\n")
+
+	// if len(logs) > 0 && logs[len(logs)-1] == "" {
+	// 	logs = logs[:len(logs)-1]
+	// }
+
+	return string(output), nil
+}

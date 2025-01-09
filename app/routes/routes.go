@@ -42,6 +42,16 @@ func Routes() {
 	visualizerApp.POST("/getBranchStatus", controller.GetBranchStatus)
 	visualizerApp.POST("/getLog", controller.GetLogs)
 	visualizerApp.POST("/checkoutBranch", controller.GitCheckoutBranches)
+	visualizerApp.POST("/stashChanges", controller.GitStash)
+	visualizerApp.POST("/deleteLastCommit", controller.GitDeleteLastCommit)
+
+	visualizerApp.POST("/addCommitFiles", controller.GitAddCommitFiles)
+	visualizerApp.POST("/commitChanges", controller.GitCommitChanges)
+	visualizerApp.POST("/pushChanges", controller.GitPushChanges)
+	visualizerApp.POST("/pullChanges", controller.GitPullChanges)
+
+	// hub := visualizerApp.Group("hub")
+	// lab := visualizerApp.Group("lab")
 
 	// visualizerApp.POST("/getNearByMetroStation", controller.GetNearByMetroStation)
 	// visualizerApp.POST("/getNearByBusStop", controller.GetNearByBusStop)

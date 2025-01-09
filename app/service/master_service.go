@@ -142,9 +142,21 @@ func GetLogs(req *dto.Request) ([]string, error) {
 
 func GitCheckoutBranches(req *dto.Request) error { // make switch case to handle various checkout flags
 
-	cmd := exec.Command("git", "-C", req.Dir, "checkout", req.Branch)
+	// cmd := exec.Command("git", "-C", req.Dir, "checkout", req.Branch)
 
 	// output, err := cmd.CombinedOutput() // Try in future when the errors are not needed individually to be debunged
+
+	args := []string{"-C", req.Dir, "checkout", req.Branch}
+	switch req.Flag {
+	case "new":
+		args = append(args, "-b")
+	case "force":
+		args = append(args, "-f")
+	}
+	// args = append(args, req.Flags) // Add all additional flags
+
+	// Create the command
+	cmd := exec.Command("git", args...)
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -166,6 +178,128 @@ func GitCheckoutBranches(req *dto.Request) error { // make switch case to handle
 	// 	//git checkout --track origin/<remote-branch-name>
 	// Force checkout of a branch, discarding local changes:
 	// 	//git checkout -f <branch-name>
+
+	return nil
+}
+
+func GitStash(req *dto.Request) ([]string, error) {
+
+	args := []string{"-C", req.Dir, "stash"}
+	switch req.Flag {
+	case "push":
+		args = append(args, "push")
+	case "pop":
+		args = append(args, "pop")
+	case "apply":
+		args = append(args, "apply")
+	case "list":
+		args = append(args, "list")
+	case "drop":
+		args = append(args, "drop")
+	case "clear":
+		args = append(args, "clear")
+	case "diff":
+		args = append(args, "diff")
+	}
+
+	// cmd := exec.Command("git", "-C", req.Dir, "stash", "",)
+	cmd := exec.Command("git", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to stash changes: %w", err)
+	}
+	stash := strings.Split(string(output), "\n")
+
+	if len(stash) > 0 && stash[len(stash)-1] == "" {
+		stash = stash[:len(stash)-1]
+	} else {
+		stash = nil
+	}
+
+	return stash, nil
+}
+
+func GitAddCommitFiles(req *dto.Request) error {
+	args := []string{"-C", req.Dir, "add"}
+	if len(req.Files) > 0 {
+		fmt.Println("this not")
+		args = append(args, req.Files...)
+	} else {
+		fmt.Println("this")
+		args = append(args, ".")
+	}
+
+	cmd := exec.Command("git", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+
+	if err != nil {
+		return fmt.Errorf("failed to delete last commit: %w", err)
+	}
+
+	return nil
+}
+
+func GitCommitChanges(req *dto.Request) error {
+	// add flags later with different conditions
+	// args := []string{"-C", req.Dir, "add"}
+	// if len(req.Files) > 0 {
+	// 	fmt.Println("this not")
+	// 	args = append(args, req.Files...)
+	// } else {
+	// 	fmt.Println("this")
+	// 	args = append(args, ".")
+	// }
+
+	// cmd := exec.Command("git", args...)
+
+	cmd := exec.Command("git", "-C", req.Dir, "commit", "-m", req.Message)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("failed to delete last commit: %w", err)
+	}
+
+	return nil
+}
+
+func GitDeleteLastCommit(req *dto.Request) error {
+	cmd := exec.Command("git", "-C", req.Dir, "reset", "--hard", "HEAD~1")
+
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to delete last commit: %w", err)
+	}
+
+	return nil
+}
+
+func GitPushChanges(req *dto.Request) error {
+	cmd := exec.Command("git", "-C", req.Dir, "push", req.RemoteBranch, req.Branch)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("failed to delete last commit: %w", err)
+	}
+
+	return nil
+}
+
+func GitPullChanges(req *dto.Request) error {
+	cmd := exec.Command("git", "-C", req.Dir, "pull", req.RemoteBranch, req.Branch)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("failed to delete last commit: %w", err)
+	}
 
 	return nil
 }

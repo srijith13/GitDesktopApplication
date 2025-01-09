@@ -23,9 +23,13 @@ type SimpleRouteRequest struct {
 }
 
 type Request struct {
-	RepoURL  string `json:"repo_url"`
-	Dir      string `json:"dir"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Branch   string `json:"branch"`
+	RepoURL      string   `json:"repo_url"`
+	Dir          string   `json:"dir"`
+	Username     string   `json:"username"`
+	Password     string   `json:"password"`
+	Branch       string   `json:"branch"`
+	RemoteBranch string   `json:"remoteBranch"`
+	Flag         string   `json:flag`
+	Files        []string `json:files`
+	Message      string   `json:message`
 }

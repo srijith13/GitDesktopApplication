@@ -108,3 +108,100 @@ func GitCheckoutBranches(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, helper.BuildResponse("Checkout Branch ", fmt.Sprintf("Successfully checked out to branch %s ", request.Branch)))
 }
+
+func GitStash(c *gin.Context) {
+	var request dto.Request
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to stash changes in branch %s", request.Branch)))
+		return
+	}
+	stashChanges, err := service.GitStash(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to stash changes in branch %s", request.Branch)))
+		return
+	} else if stashChanges == nil {
+		stashChanges = append(stashChanges, fmt.Sprintf("Successfully stashed changes in branch %s ", request.Branch))
+	}
+	c.JSON(http.StatusOK, helper.BuildResponse("Stash Changes in Branch ", stashChanges))
+}
+
+func GitDeleteLastCommit(c *gin.Context) {
+	var request dto.Request
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to commit changes in branch %s", request.Branch)))
+		return
+	}
+	err := service.GitDeleteLastCommit(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to commit changes in branch %s", request.Branch)))
+		return
+	}
+	c.JSON(http.StatusOK, helper.BuildResponse("Checkout Branch ", fmt.Sprintf("Successfully committed changes in branch %s ", request.Branch)))
+}
+
+func GitAddCommitFiles(c *gin.Context) {
+	var request dto.Request
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to add files to commit changes in branch %s", request.Branch)))
+		return
+	}
+	err := service.GitAddCommitFiles(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to add files to commit changes in branch %s", request.Branch)))
+		return
+	}
+	c.JSON(http.StatusOK, helper.BuildResponse("Checkout Branch ", fmt.Sprintf("Successfully added files to commit changes in branch %s ", request.Branch)))
+}
+
+func GitCommitChanges(c *gin.Context) {
+	var request dto.Request
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to commit changes in branch %s", request.Branch)))
+		return
+	}
+	err := service.GitAddCommitFiles(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to commit changes in branch %s", request.Branch)))
+		return
+	}
+	err = service.GitCommitChanges(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to commit changes in branch %s", request.Branch)))
+		return
+	}
+	c.JSON(http.StatusOK, helper.BuildResponse("Checkout Branch ", fmt.Sprintf("Successfully committed changes in branch %s ", request.Branch)))
+}
+
+func GitPushChanges(c *gin.Context) {
+	var request dto.Request
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to push changes in branch %s", request.Branch)))
+		return
+	}
+	if request.RemoteBranch == "" {
+		request.RemoteBranch = "origin"
+	}
+	err := service.GitPushChanges(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to push changes in branch %s", request.Branch)))
+		return
+	}
+	c.JSON(http.StatusOK, helper.BuildResponse("Checkout Branch ", fmt.Sprintf("Successfully pushed changes in branch %s ", request.Branch)))
+}
+
+func GitPullChanges(c *gin.Context) {
+	var request dto.Request
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to pulls changes from branch %s", request.Branch)))
+		return
+	}
+	if request.RemoteBranch == "" {
+		request.RemoteBranch = "origin"
+	}
+	err := service.GitPullChanges(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.BuildErrorResponse("Bad Request", err.Error(), fmt.Sprintf("Failed to pulls changes from branch %s", request.Branch)))
+		return
+	}
+	c.JSON(http.StatusOK, helper.BuildResponse("Checkout Branch ", fmt.Sprintf("Successfully pulled changes from branch %s ", request.Branch)))
+}

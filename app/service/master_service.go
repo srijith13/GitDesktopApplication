@@ -222,10 +222,8 @@ func GitStash(req *dto.Request) ([]string, error) {
 func GitAddCommitFiles(req *dto.Request) error {
 	args := []string{"-C", req.Dir, "add"}
 	if len(req.Files) > 0 {
-		fmt.Println("this not")
 		args = append(args, req.Files...)
 	} else {
-		fmt.Println("this")
 		args = append(args, ".")
 	}
 
